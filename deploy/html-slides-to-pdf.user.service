@@ -1,0 +1,25 @@
+# systemd --user unit. Install:
+#   mkdir -p ~/.config/systemd/user
+#   cp deploy/html-slides-to-pdf.user.service ~/.config/systemd/user/html-slides-to-pdf.service
+# Adjust WorkingDirectory / ExecStart if your clone path or Python differs.
+#   loginctl enable-linger "$USER"   # optional: keep service after logout / reboot
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now html-slides-to-pdf.service
+
+[Unit]
+Description=html-slides-to-pdf Web (FastAPI + Playwright)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/html-slides-to-pdf
+Environment=HOST=0.0.0.0
+Environment=PORT=8000
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/miniforge3/bin/python -m web
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

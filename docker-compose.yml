@@ -1,0 +1,10 @@
+services:
+  html-slides-to-pdf:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # 逗号分隔；默认 * 允许任意来源（公开演示）。生产可改为你的前端域名。
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      HTML_SLIDES_MAX_UPLOAD_BYTES: ${HTML_SLIDES_MAX_UPLOAD_BYTES:-26214400}
+    restart: unless-stopped

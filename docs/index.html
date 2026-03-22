@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>html-slides-to-pdf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --panel: #141a22;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e8eaef;
+      --muted: rgba(232, 234, 239, 0.62);
+      --accent: #3ee0b3;
+      --accent-dim: rgba(62, 224, 179, 0.15);
+      --danger: #ff6b6b;
+      --radius: 14px;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(62, 224, 179, 0.12), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(99, 102, 241, 0.14), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1rem, 3vw, 1.5rem) 4rem;
+    }
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .lang-switch {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .lang-switch button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.75rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .lang-switch button[aria-pressed="true"] {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+    .lang-switch button:hover { color: var(--text); }
+    header h1 {
+      font-size: clamp(1.45rem, 4vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.35rem;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .privacy-callout {
+      margin-top: 1.1rem;
+      padding: 0.9rem 1.05rem;
+      border-radius: 12px;
+      border: 1px solid rgba(62, 224, 179, 0.28);
+      background: rgba(62, 224, 179, 0.07);
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .privacy-callout strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .card {
+      margin-top: 1.75rem;
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.04), transparent 40%), var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(1.25rem, 3vw, 1.75rem);
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
+    }
+    .drop {
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: rgba(0, 0, 0, 0.15);
+    }
+    .drop:hover, .drop.dragover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .drop input { display: none; }
+    .drop strong { color: var(--text); }
+    .file-name {
+      margin-top: 0.75rem;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      word-break: break-all;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    input[type="text"] { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.82rem; }
+    .actions {
+      margin-top: 1.35rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+    }
+    button.primary {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 0.65rem 1.35rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+      background: linear-gradient(135deg, #3ee0b3, #2bb88f);
+      color: #04120c;
+      box-shadow: 0 8px 28px rgba(62, 224, 179, 0.35);
+      transition: transform 0.15s, filter 0.15s;
+    }
+    button.primary:hover:not(:disabled) {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+    button.primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      box-shadow: none;
+      border-radius: 999px;
+      padding: 0.65rem 1.35rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    button.ghost:hover:not(:disabled) {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .msg {
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      min-height: 1.4em;
+    }
+    .msg.err { color: var(--danger); }
+    .msg.ok { color: var(--accent); }
+    .progress-panel {
+      margin-top: 1.15rem;
+      display: none;
+    }
+    .progress-panel.visible { display: block; }
+    .progress-track {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #3ee0b3, #2bb88f);
+      transition: width 0.25s ease-out;
+    }
+    .progress-fill.indeterminate {
+      width: 35% !important;
+      animation: indet 1.1s ease-in-out infinite alternate;
+    }
+    @keyframes indet {
+      from { transform: translateX(-5%); }
+      to { transform: translateX(190%); }
+    }
+    .progress-text {
+      margin-top: 0.5rem;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+    details {
+      margin-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .hint {
+      margin-top: 0.65rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+    code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div style="flex: 1; min-width: 200px;">
+        <h1 data-i18n="title">HTML slides → PDF</h1>
+        <p data-i18n="subtitle"></p>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" id="langZh" aria-pressed="true">中文</button>
+        <button type="button" id="langEn" aria-pressed="false">EN</button>
+      </div>
+    </header>
+
+    <div class="privacy-callout" role="note" data-i18n-html="privacyHtml"></div>
+
+    <section class="card" aria-label="Convert form">
+      <label for="file" data-i18n="labelFile">Deck file</label>
+      <div class="drop" id="drop" tabindex="0" role="button">
+        <input type="file" id="file" accept=".html,.htm,text/html" />
+        <span data-i18n="dropHint"></span>
+        <div class="file-name" id="fileName"></div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label for="width" data-i18n="labelWidth">Width (px)</label>
+          <input type="number" id="width" value="1920" min="320" max="7680" step="1" />
+        </div>
+        <div>
+          <label for="height" data-i18n="labelHeight">Height (px)</label>
+          <input type="number" id="height" value="1080" min="240" max="4320" step="1" />
+        </div>
+        <div>
+          <label for="delay" data-i18n="labelDelay">Wait per slide (ms)</label>
+          <input type="number" id="delay" value="800" min="0" max="60000" step="50" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="convert" class="primary" disabled data-i18n="btnConvert">Generate PDF</button>
+        <button type="button" id="reset" class="ghost" data-i18n="btnReset">Clear</button>
+      </div>
+
+      <div class="progress-panel" id="progressPanel" aria-hidden="true">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText"></div>
+      </div>
+
+      <div class="msg" id="msg" role="status"></div>
+
+      <details>
+        <summary data-i18n="advSummary">Mirror / API base URL (optional)</summary>
+        <p class="hint" data-i18n="advHint"></p>
+        <label for="apiBase" data-i18n="labelApiBase">API base URL</label>
+        <input type="text" id="apiBase" data-i18n-placeholder="phApiBase" placeholder="" autocomplete="off" />
+      </details>
+    </section>
+
+    <footer>
+      <span data-i18n="footerProject"></span>
+      <a href="https://github.com/yuanmu97/html-slides-to-pdf" rel="noopener">html-slides-to-pdf</a>
+      <span data-i18n="footerSep"> · </span>
+      <a href="/api/health" id="healthLink" data-i18n="footerHealth">Health</a>
+    </footer>
+  </div>
+
+  <script>
+(function () {
+  var STR = {
+    zh: {
+      title: "HTML 幻灯片 → PDF",
+      subtitle: "上传单文件 HTML（每页为 .slide），即可下载多页 PDF。渲染与开源 CLI 一致（Playwright + Chromium）。",
+      privacyHtml: "<strong>隐私与存储：</strong>您的 HTML 仅在转换过程中写入<strong>临时文件</strong>，渲染结束会<strong>立即从服务器磁盘删除</strong>。生成的 PDF 仅在<strong>内存</strong>中保留到您下载完成或任务过期，我们不会长期在磁盘上保存您的演示稿内容。",
+      labelFile: "演示稿文件",
+      dropHint: "<strong>点击选择</strong> 或将 .html 拖到此处",
+      labelWidth: "宽度 (px)",
+      labelHeight: "高度 (px)",
+      labelDelay: "每页等待 (ms)",
+      btnConvert: "生成 PDF",
+      btnReset: "清除",
+      advSummary: "镜像站或独立前端：API 根地址（一般用不上）",
+      advHint: "本页与接口同站时无需填写。仅当静态页与 API 不同源时填写根地址（无末尾斜杠），或使用 ?api=https://…",
+      labelApiBase: "API 根地址",
+      phApiBase: "留空＝当前站点",
+      footerProject: "开源项目 ",
+      footerSep: " · ",
+      footerHealth: "健康检查",
+      errHtmlOnly: "请上传 .html 文件。",
+      errDropHtml: "请拖拽 .html 文件。",
+      phaseLoading: "加载页面与字体…",
+      phaseRendering: "正在生成 PDF：第 {cur} / {total} 页",
+      phaseMerging: "正在合并 PDF…",
+      errJob: "转换失败",
+      okDownload: "已开始下载 PDF。",
+      progressUnknown: "处理中…"
+    },
+    en: {
+      title: "HTML slides → PDF",
+      subtitle: "Upload a single-file HTML deck (one .slide per page) and download a multi-page PDF. Same rendering as the open-source CLI (Playwright + Chromium).",
+      privacyHtml: "<strong>Privacy &amp; storage:</strong> Your HTML is written to a <strong>temporary file</strong> only while we render it, then <strong>removed from disk immediately</strong> afterward. The PDF stays <strong>in memory</strong> until you download it or the job expires—we <strong>do not</strong> keep your deck on disk after conversion.",
+      labelFile: "Deck file",
+      dropHint: "<strong>Choose file</strong> or drop an .html here",
+      labelWidth: "Width (px)",
+      labelHeight: "Height (px)",
+      labelDelay: "Wait per slide (ms)",
+      btnConvert: "Generate PDF",
+      btnReset: "Clear",
+      advSummary: "Mirror / API base URL (optional)",
+      advHint: "Leave empty when this page and the API share the same origin. Use when the static UI is hosted elsewhere, or pass ?api=https://…",
+      labelApiBase: "API base URL",
+      phApiBase: "Empty = this origin",
+      footerProject: "Open source ",
+      footerSep: " · ",
+      footerHealth: "Health check",
+      errHtmlOnly: "Please upload an .html file.",
+      errDropHtml: "Please drop an .html file.",
+      phaseLoading: "Loading page & fonts…",
+      phaseRendering: "Rendering PDF: page {cur} / {total}",
+      phaseMerging: "Merging PDF…",
+      errJob: "Conversion failed",
+      okDownload: "Download started.",
+      progressUnknown: "Working…"
+    }
+  };
+
+  function detectLang() {
+    var q = new URLSearchParams(location.search).get("lang");
+    if (q === "en" || q === "zh") return q;
+    var s = localStorage.getItem("htmlSlidesLang");
+    if (s === "en" || s === "zh") return s;
+    var nav = (navigator.language || "en").toLowerCase();
+    return nav.indexOf("zh") === 0 ? "zh" : "en";
+  }
+
+  var lang = detectLang();
+
+  function $(id) { return document.getElementById(id); }
+
+  function t(key, vars) {
+    var s = STR[lang][key] || STR.en[key] || key;
+    if (vars) {
+      Object.keys(vars).forEach(function (k) {
+        s = s.split("{" + k + "}").join(String(vars[k]));
+      });
+    }
+    return s;
+  }
+
+  function applyLang() {
+    document.documentElement.lang = lang === "zh" ? "zh-Hans" : "en";
+    localStorage.setItem("htmlSlidesLang", lang);
+    $("langZh").setAttribute("aria-pressed", lang === "zh" ? "true" : "false");
+    $("langEn").setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n");
+      if (el.tagName === "SUMMARY" || el.tagName === "LABEL" || el.tagName === "H1" || el.tagName === "SPAN") {
+        if (k === "dropHint") el.innerHTML = t(k);
+        else el.textContent = t(k);
+      } else {
+        el.textContent = t(k);
+      }
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+      el.placeholder = t(el.getAttribute("data-i18n-placeholder"));
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+      el.innerHTML = t(el.getAttribute("data-i18n-html"));
+    });
+  }
+
+  $("langZh").addEventListener("click", function () { lang = "zh"; applyLang(); });
+  $("langEn").addEventListener("click", function () { lang = "en"; applyLang(); });
+  applyLang();
+
+  function apiBase() {
+    if (typeof window.__API_BASE__ === "string" && window.__API_BASE__.length) {
+      return window.__API_BASE__.replace(/\/$/, "");
+    }
+    var q = new URLSearchParams(location.search).get("api");
+    if (q) return q.replace(/\/$/, "");
+    var saved = localStorage.getItem("htmlSlidesApiBase");
+    return saved ? saved.replace(/\/$/, "") : "";
+  }
+
+  function setMsg(text, cls) {
+    var el = $("msg");
+    el.textContent = text || "";
+    el.className = "msg" + (cls ? " " + cls : "");
+  }
+
+  function setProgress(visible, pct, text) {
+    var panel = $("progressPanel");
+    var fill = $("progressFill");
+    var tx = $("progressText");
+    panel.classList.toggle("visible", visible);
+    panel.setAttribute("aria-hidden", visible ? "false" : "true");
+    fill.classList.toggle("indeterminate", pct < 0);
+    if (pct >= 0) {
+      fill.style.width = Math.min(100, Math.max(0, pct)) + "%";
+    }
+    tx.textContent = text || "";
+  }
+
+  var fileInput = $("file");
+  var drop = $("drop");
+  var fileName = $("fileName");
+  var convertBtn = $("convert");
+  var selected = null;
+
+  $("apiBase").value = apiBase();
+  $("apiBase").addEventListener("change", function () {
+    var v = $("apiBase").value.trim().replace(/\/$/, "");
+    if (v) localStorage.setItem("htmlSlidesApiBase", v);
+    else localStorage.removeItem("htmlSlidesApiBase");
+  });
+
+  function sync() {
+    convertBtn.disabled = !selected;
+    fileName.textContent = selected ? selected.name : "";
+  }
+
+  fileInput.addEventListener("change", function () {
+    selected = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    sync();
+  });
+
+  drop.addEventListener("click", function (e) {
+    if (e.target !== fileInput) fileInput.click();
+  });
+  drop.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) {
+      e.preventDefault();
+      drop.classList.add("dragover");
+    });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) {
+      e.preventDefault();
+      drop.classList.remove("dragover");
+    });
+  });
+  drop.addEventListener("drop", function (e) {
+    var f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f && /\.html?$/i.test(f.name)) {
+      selected = f;
+      sync();
+    } else {
+      setMsg(t("errDropHtml"), "err");
+    }
+  });
+
+  $("reset").addEventListener("click", function () {
+    selected = null;
+    fileInput.value = "";
+    sync();
+    setMsg("");
+    setProgress(false, 0, "");
+  });
+
+  function statusPct(phase, current, total) {
+    if (phase === "loading") return { pct: -1, text: t("phaseLoading") };
+    if (phase === "merging" || phase === "done") {
+      return { pct: 100, text: t("phaseMerging") };
+    }
+    if (phase === "rendering" && total > 0) {
+      var text = t("phaseRendering", { cur: String(current), total: String(total) });
+      var p = (current / total) * 100;
+      return { pct: p, text: text };
+    }
+    return { pct: -1, text: t("progressUnknown") };
+  }
+
+  $("convert").addEventListener("click", async function () {
+    if (!selected) return;
+    var base = $("apiBase").value.trim().replace(/\/$/, "") || apiBase();
+    var w = parseInt($("width").value, 10);
+    var h = parseInt($("height").value, 10);
+    var d = parseInt($("delay").value, 10);
+    if (base) localStorage.setItem("htmlSlidesApiBase", base);
+
+    if (!selected.name || !/\.html?$/i.test(selected.name)) {
+      setMsg(t("errHtmlOnly"), "err");
+      return;
+    }
+
+    var fd = new FormData();
+    fd.append("file", selected, selected.name);
+    fd.append("width", String(w));
+    fd.append("height", String(h));
+    fd.append("delay_ms", String(d));
+
+    var root = (base || "") + "/api/convert/jobs";
+    convertBtn.disabled = true;
+    setMsg("");
+    setProgress(true, -1, t("phaseLoading"));
+
+    try {
+      var start = await fetch(root, { method: "POST", body: fd });
+      if (!start.ok) {
+        var detail = start.statusText;
+        try {
+          var ej = await start.json();
+          if (ej.detail) detail = typeof ej.detail === "string" ? ej.detail : JSON.stringify(ej.detail);
+        } catch (_) {}
+        throw new Error(detail || "HTTP " + start.status);
+      }
+      var sj = await start.json();
+      var jobId = sj.job_id;
+      if (!jobId) throw new Error("No job_id");
+
+      var pollUrl = (base || "") + "/api/convert/jobs/" + jobId;
+      var status = { status: "running" };
+      while (status.status === "running" || status.status === "queued") {
+        await new Promise(function (r) { setTimeout(r, 280); });
+        var pr = await fetch(pollUrl);
+        if (!pr.ok) throw new Error(pr.statusText);
+        status = await pr.json();
+        var st = statusPct(status.phase, status.current, status.total);
+        setProgress(true, st.pct, st.text);
+      }
+
+      if (status.status === "error") {
+        throw new Error(status.detail || t("errJob"));
+      }
+      if (status.status !== "done") {
+        throw new Error(status.detail || t("errJob"));
+      }
+
+      setProgress(true, 100, t("phaseMerging"));
+      var pdfUrl = (base || "") + "/api/convert/jobs/" + jobId + "/pdf";
+      var res = await fetch(pdfUrl);
+      if (!res.ok) {
+        var d2 = res.statusText;
+        try {
+          var ej2 = await res.json();
+          if (ej2.detail) d2 = typeof ej2.detail === "string" ? ej2.detail : JSON.stringify(ej2.detail);
+        } catch (_) {}
+        throw new Error(d2 || "PDF fetch failed");
+      }
+      var blob = await res.blob();
+      var a = document.createElement("a");
+      var dispo = res.headers.get("Content-Disposition") || "";
+      var m = /filename="([^"]+)"/.exec(dispo);
+      a.download = m ? m[1] : selected.name.replace(/\.html?$/i, "") + ".pdf";
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setMsg(t("okDownload"), "ok");
+    } catch (e) {
+      setMsg(e.message || String(e), "err");
+    } finally {
+      setProgress(false, 0, "");
+      convertBtn.disabled = !selected;
+    }
+  });
+
+  $("healthLink").href = (apiBase() || "") + "/api/health";
+  sync();
+})();
+  </script>
+</body>
+</html>

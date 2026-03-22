@@ -26,3 +26,8 @@ jobs:
         run: |
           python html_to_pdf.py examples/slides/mobile-ai-runtime.html -o /tmp/smoke.pdf --delay-ms 500
           python -c "from pypdf import PdfReader; r=PdfReader('/tmp/smoke.pdf'); assert len(r.pages)==16, len(r.pages)"
+
+      - name: Web stack (import)
+        run: |
+          pip install fastapi "uvicorn[standard]" python-multipart
+          python -c "from web.app import app; assert app.title == 'html-slides-to-pdf'"

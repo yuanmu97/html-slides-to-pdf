@@ -26,6 +26,13 @@ dependencies = [
   "pypdf>=4.0",
 ]
 
+[project.optional-dependencies]
+web = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "python-multipart>=0.0.9",
+]
+
 [project.urls]
 Repository = "https://github.com/yuanmu97/html-slides-to-pdf"
 Issues = "https://github.com/yuanmu97/html-slides-to-pdf/issues"
@@ -35,3 +42,6 @@ html-slides-to-pdf = "html_to_pdf:run"
 
 [tool.setuptools]
 py-modules = ["html_to_pdf"]
+
+[tool.setuptools.packages.find]
+include = ["web"]
