@@ -22,7 +22,7 @@ pip install -e .
 
 ## Publishing the package (maintainers)
 
-After you create the GitHub repository, add `[project.urls]` in `pyproject.toml` with the real `Repository` URL.
+Repository: **https://github.com/yuanmu97/html-slides-to-pdf** — `[project.urls]` in `pyproject.toml` should stay in sync if the repo moves.
 
 ## License
 
