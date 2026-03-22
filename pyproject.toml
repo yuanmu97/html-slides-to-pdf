@@ -26,9 +26,9 @@ dependencies = [
   "pypdf>=4.0",
 ]
 
-# After creating the GitHub repository, set real URLs:
-# [project.urls]
-# Repository = "https://github.com/<you>/html-slides-to-pdf"
+[project.urls]
+Repository = "https://github.com/yuanmu97/html-slides-to-pdf"
+Issues = "https://github.com/yuanmu97/html-slides-to-pdf/issues"
 
 [project.scripts]
 html-slides-to-pdf = "html_to_pdf:run"

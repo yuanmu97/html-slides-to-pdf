@@ -39,7 +39,7 @@ To refresh the preview images after editing the sample HTML: `python scripts/gen
 ## Install
 
 ```bash
-git clone https://github.com/<you>/html-slides-to-pdf.git
+git clone https://github.com/yuanmu97/html-slides-to-pdf.git
 cd html-slides-to-pdf
 python -m pip install -r requirements.txt
 python -m playwright install chromium
