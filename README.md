@@ -13,11 +13,19 @@ Typical use: share decks via **WeChat**, email, or print—contexts where raw HT
 
 ## Example deck
 
-Sample HTML: **[`examples/slides/mobile-ai-runtime.html`](examples/slides/mobile-ai-runtime.html)** — 16 slides, web fonts, dense layout, Chinese copy. Below are **three** representative pages (same rendering pipeline as PDF export).
+Sample HTML: **[`examples/slides/mobile-ai-runtime.html`](examples/slides/mobile-ai-runtime.html)** — 16 slides, web fonts, dense layout, Chinese copy. Three representative pages below (same rendering pipeline as PDF export), **full width** each so they stay readable on GitHub.
 
-| 封面                                               | 摘要                                               | 背景与动机                                               |
-| -------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------- |
-| ![Slide 1 — 封面](docs/assets/example-slide-01.png) | ![Slide 2 — 摘要](docs/assets/example-slide-02.png) | ![Slide 3 — 背景与动机](docs/assets/example-slide-03.png) |
+### 1 · 封面
+
+![Slide 1 — 封面](docs/assets/example-slide-01.png)
+
+### 2 · 摘要
+
+![Slide 2 — 摘要](docs/assets/example-slide-02.png)
+
+### 3 · 背景与动机
+
+![Slide 3 — 背景与动机](docs/assets/example-slide-03.png)
 
 |                 |                                                              |
 | --------------- | ------------------------------------------------------------ |
