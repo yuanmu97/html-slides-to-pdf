@@ -1,19 +1,43 @@
 # html-slides-to-pdf
 
-**Agent-first:** start with **[SKILL.md](SKILL.md)** at the repo root (copy it into your agent’s skills folder as `SKILL.md`). This README documents installation, behavior, and troubleshooting for humans.
+**Agent-first:** the machine-readable skill is **[SKILL.md](SKILL.md)** at the repo root. **Install it for your agent** (one-liner below), then install the Python CLI so the agent can run `html_to_pdf.py`. This README covers CLI usage, behavior, and troubleshooting.
 
 Export a **single-file HTML slide deck** to one **multi-page PDF** (one page per slide). Uses [Playwright](https://playwright.dev/python/) (Chromium) to render and [pypdf](https://pypdf.readthedocs.io/) to merge pages.
 
-|                       |                                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------- |
-| **Agent skill** | **[SKILL.md](SKILL.md)** — copy to `~/.cursor/skills/.../SKILL.md`, Claude Code skills path, etc. |
-| **CLI**         | Run `html_to_pdf.py` or the `html-slides-to-pdf` command after `pip install -e .`                 |
+| | |
+| --- | --- |
+| **Agent skill** | **[SKILL.md](SKILL.md)** in the cloned folder — Cursor / Claude Code paths below |
+| **CLI** | `html_to_pdf.py` or `html-slides-to-pdf` after `pip install -e .` (see **Install**) |
+
+## Install the agent skill
+
+Clone this repository into your agent’s skills directory. After clone, the skill file is **`~/.cursor/skills/html-slides-to-pdf/SKILL.md`** or **`~/.claude/skills/html-slides-to-pdf/SKILL.md`** (same content).
+
+**Cursor**
+
+```bash
+git clone https://github.com/yuanmu97/html-slides-to-pdf.git ~/.cursor/skills/html-slides-to-pdf
+```
+
+**Claude Code**
+
+```bash
+git clone https://github.com/yuanmu97/html-slides-to-pdf.git ~/.claude/skills/html-slides-to-pdf
+```
+
+If that folder already exists, remove it or `cd` into it and `git pull` instead of cloning again.
+
+You still need the **Python + Playwright** runtime on your machine—see **Install** below. Point commands at `~/.cursor/skills/html-slides-to-pdf/html_to_pdf.py` (or run `pip install -e ~/.cursor/skills/html-slides-to-pdf`).
 
 Typical use: share decks via **WeChat**, email, or print—contexts where raw HTML is awkward.
 
 ## Example deck
 
 Sample HTML: **[`examples/slides/mobile-ai-runtime.html`](examples/slides/mobile-ai-runtime.html)** — 16 slides, web fonts, dense layout, Chinese copy. Three representative pages below (same rendering pipeline as PDF export), **full width** each so they stay readable on GitHub.
+
+```bash
+python html_to_pdf.py examples/slides/mobile-ai-runtime.html -o mobile-ai-runtime.pdf --delay-ms 1000
+```
 
 ### 1 · 封面
 
@@ -26,18 +50,6 @@ Sample HTML: **[`examples/slides/mobile-ai-runtime.html`](examples/slides/mobile
 ### 3 · 背景与动机
 
 ![Slide 3 — 背景与动机](docs/assets/example-slide-03.png)
-
-|                 |                                                              |
-| --------------- | ------------------------------------------------------------ |
-| **Title** | *移动端开源模型推理基础软件 · 概念简报*                   |
-| **Pages** | 16 (each `.slide` → one PDF page)                         |
-| **Tip**   | Fonts load from CDNs; use `--delay-ms 1000` on slow links. |
-
-```bash
-python html_to_pdf.py examples/slides/mobile-ai-runtime.html -o mobile-ai-runtime.pdf --delay-ms 1000
-```
-
-To refresh the preview images after editing the sample HTML: `python scripts/generate_readme_previews.py` (requires Playwright Chromium).
 
 ## Requirements
 

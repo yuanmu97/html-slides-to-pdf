@@ -8,16 +8,16 @@ description: >-
 
 # HTML Slides → PDF (Agent Skill)
 
-This repository is **agent-first**: this file is the **machine-readable skill** at the repo root. Install the CLI once on disk, then copy **this file** into your coding agent’s skill directory as **`SKILL.md`** so the agent knows when and how to run `html_to_pdf.py`. Human-oriented docs are in **[README.md](README.md)**.
+This repository is **agent-first**: this file is **`SKILL.md`** at the repo root. **Install** by cloning the repo into your agent’s skills folder (see **[README.md](README.md)** → *Install the agent skill*), then install the Python + Playwright dependencies so the agent can run `html_to_pdf.py`.
 
 Supported setups (same skill file, different install paths):
 
 | Agent | Typical skill location | Notes |
 |--------|-------------------------|--------|
-| **Cursor Agent** | `~/.cursor/skills/html-slides-to-pdf/SKILL.md` | Copy or symlink from **`SKILL.md`** in this repository (repo root). |
-| **Claude Code** | Per Claude Code docs for **skills** (user- or project-level) | Skill folder must contain **`SKILL.md`** with this content; exact path follows upstream docs. |
+| **Cursor Agent** | `~/.cursor/skills/html-slides-to-pdf/SKILL.md` | One-liner: `git clone https://github.com/yuanmu97/html-slides-to-pdf.git ~/.cursor/skills/html-slides-to-pdf` (see README). |
+| **Claude Code** | `~/.claude/skills/html-slides-to-pdf/SKILL.md` | One-liner: `git clone https://github.com/yuanmu97/html-slides-to-pdf.git ~/.claude/skills/html-slides-to-pdf` |
 
-The **canonical** skill file in git is **`SKILL.md` at the repository root** (not under `docs/`).
+The **canonical** skill file in git is **`SKILL.md` at the repository root**.
 
 ## Prerequisites (one-time, machine)
 
