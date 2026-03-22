@@ -34,7 +34,7 @@ Typical use: share decks via **WeChat**, email, or print—contexts where raw HT
 
 ## Example deck
 
-Sample HTML: `**[examples/slides/mobile-ai-runtime.html](examples/slides/mobile-ai-runtime.html)`** — 16 slides, web fonts, dense layout, Chinese copy. Three representative pages below.
+Sample HTML: **[`examples/slides/mobile-ai-runtime.html`](examples/slides/mobile-ai-runtime.html)** — 16 slides, web fonts, dense layout, Chinese copy. Three representative pages below.
 
 ```bash
 python html_to_pdf.py examples/slides/mobile-ai-runtime.html -o mobile-ai-runtime.pdf --delay-ms 1000
@@ -42,15 +42,15 @@ python html_to_pdf.py examples/slides/mobile-ai-runtime.html -o mobile-ai-runtim
 
 ### 1 · cover
 
-Slide 1 — cover
+![Slide 1 — cover](docs/assets/example-slide-01.png)
 
 ### 2 · abstract
 
-Slide 2 — abstract
+![Slide 2 — abstract](docs/assets/example-slide-02.png)
 
 ### 3 · background
 
-Slide 3 — background
+![Slide 3 — background](docs/assets/example-slide-03.png)
 
 ## Requirements
 
@@ -142,7 +142,7 @@ html-slides-to-pdf/
 │   └── html-slides-to-pdf.user.service  # example systemd --user unit
 ├── Dockerfile
 ├── docker-compose.yml
-├── docs/                   # Optional GitHub Pages mirror; index.html sync from web/static/
+├── docs/                   # GitHub Pages (index.html); assets/ = README preview PNGs (scripts/generate_readme_previews.py)
 ├── scripts/
 │   ├── install_linux_cjk_fonts.sh
 │   ├── sync_docs_ui.sh
