@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端开源模型推理基础软件 · 概念简报</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #070a12;
+            --bg-mid: #0f1628;
+            --mesh-1: rgba(242, 92, 63, 0.12);
+            --mesh-2: rgba(0, 212, 170, 0.08);
+            --text-primary: #f2f0eb;
+            --text-muted: rgba(242, 240, 235, 0.62);
+            --accent: #f25c3f;
+            --accent-2: #00d4aa;
+            --card: rgba(15, 22, 40, 0.82);
+            --border: rgba(255, 255, 255, 0.08);
+            --font-display: "Syne", system-ui, sans-serif;
+            --font-body: "DM Sans", system-ui, sans-serif;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.55s;
+            --title-size: clamp(1.45rem, 4.6vw, 3.4rem);
+            --h2-size: clamp(1.05rem, 2.85vw, 1.95rem);
+            --h3-size: clamp(0.88rem, 2vw, 1.2rem);
+            --body-size: clamp(0.72rem, 1.25vw, 0.98rem);
+            --small-size: clamp(0.62rem, 0.95vw, 0.82rem);
+            --slide-padding: clamp(0.85rem, 3.2vw, 3rem);
+            --content-gap: clamp(0.4rem, 1.5vw, 1.1rem);
+            --element-gap: clamp(0.2rem, 0.85vw, 0.65rem);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { height: 100%; overflow-x: hidden; }
+        html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+            gap: var(--content-gap);
+        }
+        .slide-content--dense { gap: clamp(0.3rem, 1.2vh, 0.75rem); justify-content: center; }
+        .card, .container, .content-box {
+            max-width: min(94vw, 1100px);
+            max-height: min(82vh, 720px);
+        }
+        .grid { display: grid; gap: clamp(0.35rem, 1.1vw, 0.85rem); }
+        img { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+
+        @media (max-width: 900px) {
+            .cover-deco { width: min(48vw, 260px); right: 0.5rem; opacity: 0.45; }
+        }
+        @media (max-width: 600px) {
+            .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.65rem, 2.5vw, 1.75rem);
+                --title-size: clamp(1.2rem, 4vw, 2.35rem);
+                --h2-size: clamp(0.95rem, 2.6vw, 1.55rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --body-size: clamp(0.68rem, 1.1vw, 0.9rem);
+                --small-size: clamp(0.58rem, 0.85vw, 0.78rem);
+            }
+            .nav-dots, .keyboard-hint { display: none; }
+            .cover-deco { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 1.8vw, 1rem);
+                --h2-size: clamp(0.85rem, 2.2vw, 1.2rem);
+            }
+        }
+        @media (max-width: 720px) {
+            .slide-split { grid-template-columns: 1fr !important; }
+            .hero-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--text-primary);
+            background: var(--bg-deep);
+        }
+        .slide::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, var(--mesh-1), transparent 50%),
+                radial-gradient(ellipse 70% 50% at 85% 75%, var(--mesh-2), transparent 45%),
+                linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-mid) 55%, #0a0814 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .slide::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: clamp(14px, 2.5vw, 22px) clamp(14px, 2.5vw, 22px);
+            opacity: 0.35;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .slide > * { position: relative; z-index: 1; }
+
+        .slide h1 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: var(--title-size);
+            letter-spacing: calc(-1 * clamp(0.02rem, 0.12vw, 0.05rem));
+            line-height: 1.06;
+        }
+        .slide h2 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: var(--h2-size);
+            color: var(--text-primary);
+            line-height: 1.15;
+        }
+        .slide h3 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: var(--h3-size);
+            color: var(--accent-2);
+        }
+        .eyebrow {
+            font-size: var(--small-size);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .tagline {
+            font-size: var(--body-size);
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+        .meta { font-size: var(--small-size); color: var(--text-muted); }
+        .accent-bar {
+            width: clamp(2.5rem, 10vw, 5rem);
+            height: clamp(3px, 0.45vh, 5px);
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            border-radius: 2px;
+        }
+        .pill {
+            display: inline-block;
+            font-size: var(--small-size);
+            padding: clamp(0.15rem, 0.5vh, 0.3rem) clamp(0.45rem, 1.1vw, 0.65rem);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text-muted);
+        }
+
+        /* === REVEAL === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(clamp(0.5rem, 1.5vh, 1rem));
+            transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-normal) var(--ease-out-expo);
+        }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .slide.visible .reveal:nth-child(1) { transition-delay: 0.04s; }
+        .slide.visible .reveal:nth-child(2) { transition-delay: 0.1s; }
+        .slide.visible .reveal:nth-child(3) { transition-delay: 0.16s; }
+        .slide.visible .reveal:nth-child(4) { transition-delay: 0.22s; }
+        .slide.visible .reveal:nth-child(5) { transition-delay: 0.28s; }
+        .slide.visible .reveal:nth-child(6) { transition-delay: 0.34s; }
+        .slide.visible .reveal:nth-child(7) { transition-delay: 0.4s; }
+        .slide.visible .reveal:nth-child(8) { transition-delay: 0.46s; }
+
+        /* === LAYOUT === */
+        .slide-head { display: flex; flex-direction: column; gap: clamp(0.25rem, 1vh, 0.5rem); margin-bottom: clamp(0.15rem, 0.8vh, 0.45rem); }
+        .slide-split {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            gap: clamp(0.5rem, 2vw, 1.25rem);
+            align-items: stretch;
+            min-height: 0;
+        }
+        .slide-split--wide-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); }
+
+        .viz-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: clamp(10px, 1.4vw, 16px);
+            padding: clamp(0.5rem, 1.5vw, 1rem);
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .viz-panel--glow::before {
+            content: "";
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 70%;
+            height: 90%;
+            background: radial-gradient(circle, rgba(242,92,63,0.15), transparent 65%);
+            pointer-events: none;
+        }
+
+        .bullet-list { list-style: none; display: flex; flex-direction: column; gap: clamp(0.35rem, 1.1vh, 0.65rem); }
+        .bullet-list li {
+            font-size: var(--body-size);
+            color: var(--text-muted);
+            line-height: 1.42;
+            padding-left: clamp(0.75rem, 1.8vw, 1.1rem);
+            position: relative;
+        }
+        .bullet-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: clamp(4px, 0.35vw, 6px);
+            height: clamp(4px, 0.35vw, 6px);
+            background: var(--accent);
+            border-radius: 1px;
+            transform: rotate(45deg);
+        }
+        .bullet-list li strong { color: var(--text-primary); font-weight: 600; }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.35rem, 1.2vw, 0.75rem);
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: clamp(8px, 1vw, 12px);
+            padding: clamp(0.4rem, 1.2vh, 0.75rem);
+            text-align: center;
+        }
+        .stat-card b {
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 2.8vw, 1.65rem);
+            color: var(--accent-2);
+            display: block;
+            line-height: 1.1;
+        }
+        .stat-card span { font-size: var(--small-size); color: var(--text-muted); }
+
+        .icon-card {
+            background: rgba(255,255,255,0.035);
+            border: 1px solid var(--border);
+            border-radius: clamp(8px, 1vw, 12px);
+            padding: clamp(0.45rem, 1.2vw, 0.8rem);
+            display: flex;
+            gap: clamp(0.4rem, 1.2vw, 0.75rem);
+            align-items: flex-start;
+            min-height: 0;
+        }
+        .icon-card svg { flex-shrink: 0; width: clamp(28px, 5vw, 40px); height: clamp(28px, 5vw, 40px); }
+        .icon-card .t { font-size: var(--small-size); font-family: var(--font-display); color: var(--accent-2); font-weight: 700; margin-bottom: 0.2em; }
+        .icon-card p { font-size: var(--small-size); color: var(--text-muted); line-height: 1.38; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.35rem, 1vw, 0.65rem); }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(0.35rem, 1vw, 0.65rem); }
+
+        .stack {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.2rem, 0.65vh, 0.4rem);
+            font-size: var(--small-size);
+        }
+        .stack-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.3rem, 0.9vw, 0.55rem);
+            padding: clamp(0.28rem, 0.85vh, 0.48rem) clamp(0.45rem, 1.2vw, 0.75rem);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: clamp(6px, 0.9vw, 10px);
+            color: var(--text-muted);
+        }
+        .stack-num { font-family: var(--font-display); font-weight: 700; color: var(--accent); min-width: 1.35em; }
+
+        .compare { width: 100%; border-collapse: collapse; font-size: var(--small-size); }
+        .compare th, .compare td {
+            padding: clamp(0.28rem, 0.85vh, 0.45rem) clamp(0.35rem, 0.9vw, 0.55rem);
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: top;
+        }
+        .compare th { color: var(--text-primary); font-family: var(--font-display); }
+        .compare td { color: var(--text-muted); }
+        .compare .ico { width: clamp(22px, 4vw, 30px); text-align: center; }
+
+        .timeline {
+            display: flex;
+            gap: clamp(0.35rem, 1.2vw, 0.75rem);
+            align-items: stretch;
+        }
+        .timeline-phase {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: clamp(8px, 1vw, 12px);
+            padding: clamp(0.4rem, 1.2vw, 0.75rem);
+            position: relative;
+        }
+        .timeline-phase::before {
+            content: attr(data-label);
+            font-family: var(--font-display);
+            font-size: var(--small-size);
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.35em;
+        }
+        .timeline-phase p { font-size: var(--small-size); color: var(--text-muted); line-height: 1.38; }
+
+        .mini-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.25rem;
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+        .mini-flow span {
+            background: rgba(0,212,170,0.12);
+            border: 1px solid rgba(0,212,170,0.25);
+            padding: 0.2em 0.45em;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        .mini-flow i { color: var(--accent); font-style: normal; }
+
+        .meter { height: clamp(5px, 0.8vh, 8px); background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; margin-top: 0.35em; }
+        .meter > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 4px; }
+
+        .code-block {
+            font-family: ui-monospace, monospace;
+            font-size: clamp(0.58rem, 1vw, 0.72rem);
+            background: rgba(0,0,0,0.35);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.4rem, 1vw, 0.65rem);
+            color: rgba(242,240,235,0.85);
+            line-height: 1.45;
+            overflow: hidden;
+        }
+        .code-block .k { color: var(--accent-2); }
+        .code-block .s { color: var(--accent); }
+
+        .title-slide .slide-content { justify-content: flex-end; padding-bottom: clamp(1.5rem, 6vh, 4rem); }
+        .slide-num {
+            position: absolute;
+            top: var(--slide-padding);
+            left: var(--slide-padding);
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: clamp(2rem, 10vw, 4.2rem);
+            color: rgba(242, 92, 63, 0.12);
+            line-height: 1;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .cover-deco {
+            position: absolute;
+            right: clamp(0.5rem, 3vw, 2.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            width: min(42vw, 380px);
+            opacity: 0.85;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .frag-viz {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            align-content: center;
+            padding: 0.35rem 0;
+        }
+        .frag-viz b {
+            width: clamp(22px, 4vw, 28px);
+            height: clamp(22px, 4vw, 28px);
+            border-radius: 6px;
+            background: linear-gradient(135deg, rgba(242,92,63,0.35), rgba(0,212,170,0.2));
+            border: 1px solid var(--border);
+        }
+
+        .layer-viz {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .layer-viz .layer {
+            height: clamp(22px, 3.5vh, 34px);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 0.65em;
+            font-size: var(--small-size);
+            color: var(--text-muted);
+        }
+        .layer-viz .layer:nth-child(1) { background: rgba(242,92,63,0.12); }
+        .layer-viz .layer:nth-child(2) { background: rgba(255,255,255,0.05); }
+        .layer-viz .layer:nth-child(3) { background: rgba(0,212,170,0.1); }
+
+        .risk-pair {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0.35rem;
+            align-items: center;
+            font-size: var(--small-size);
+            margin-bottom: 0.35rem;
+        }
+        .risk-pair .tag { background: rgba(242,92,63,0.12); color: var(--text-primary); padding: 0.25em 0.5em; border-radius: 6px; }
+        .risk-pair .ok { background: rgba(0,212,170,0.12); color: var(--accent-2); padding: 0.25em 0.5em; border-radius: 6px; }
+        .risk-pair em { color: var(--accent); font-style: normal; }
+
+        svg { overflow: visible; }
+
+        .progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            z-index: 100;
+            transition: width 0.25s var(--ease-out-expo);
+        }
+        .nav-dots {
+            position: fixed;
+            bottom: clamp(0.65rem, 2vh, 1.35rem);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: clamp(0.3rem, 0.9vw, 0.5rem);
+            z-index: 100;
+        }
+        .nav-dots button {
+            width: clamp(6px, 0.9vw, 8px);
+            height: clamp(6px, 0.9vw, 8px);
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .nav-dots button.active { background: var(--accent); transform: scale(1.25); }
+        .keyboard-hint {
+            position: fixed;
+            bottom: clamp(0.65rem, 2vh, 1.35rem);
+            right: var(--slide-padding);
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            z-index: 100;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <nav class="nav-dots" id="navDots" aria-label="幻灯片导航"></nav>
+    <p class="keyboard-hint">← → 空格 · 滑动</p>
+
+    <!-- 1 封面 -->
+    <section class="slide title-slide" aria-label="封面">
+        <span class="slide-num reveal">01</span>
+        <svg class="cover-deco reveal" viewBox="0 0 400 320" aria-hidden="true">
+            <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#f25c3f" stop-opacity="0.9"/>
+                    <stop offset="100%" stop-color="#00d4aa" stop-opacity="0.5"/>
+                </linearGradient>
+            </defs>
+            <circle cx="200" cy="120" r="56" fill="none" stroke="url(#g1)" stroke-width="2" opacity="0.6"/>
+            <circle cx="200" cy="120" r="92" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+            <line x1="80" y1="200" x2="320" y2="80" stroke="rgba(242,92,63,0.35)" stroke-width="1.5"/>
+            <line x1="100" y1="260" x2="340" y2="140" stroke="rgba(0,212,170,0.25)" stroke-width="1"/>
+            <circle cx="120" cy="70" r="5" fill="#f25c3f"/>
+            <circle cx="290" cy="95" r="4" fill="#00d4aa"/>
+            <circle cx="310" cy="210" r="6" fill="#f25c3f" opacity="0.7"/>
+            <rect x="155" y="175" width="90" height="118" rx="14" fill="rgba(15,22,40,0.85)" stroke="rgba(255,255,255,0.15)"/>
+            <rect x="168" y="192" width="64" height="84" rx="6" fill="rgba(0,212,170,0.08)"/>
+        </svg>
+        <div class="slide-content">
+            <p class="reveal pill">概念白皮书 · 可视化简报</p>
+            <div class="reveal accent-bar"></div>
+            <h1 class="reveal">移动端开源模型<br>推理基础软件</h1>
+            <p class="reveal tagline">统一运行时、类小程序生态、异构模型调度（LLM / Diffusion / VLM / 小模型）。目标：让「调模型」像调用系统服务一样可预期、可组合、可治理。</p>
+            <div class="reveal hero-grid" style="margin-top:clamp(0.5rem,2vh,1rem);max-width:min(92vw,720px)">
+                <div class="stat-card"><b>端侧</b><span>隐私 · 离线 · 低延迟</span></div>
+                <div class="stat-card"><b>平台</b><span>调度 · 资源 · 观测</span></div>
+                <div class="stat-card"><b>生态</b><span>第三方智能小程序</span></div>
+            </div>
+            <p class="reveal meta">SSD-inference · 全文见 docs/mobile-ai-runtime-whitepaper.md</p>
+        </div>
+    </section>
+
+    <!-- 2 摘要 -->
+    <section class="slide" aria-label="摘要">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Executive summary</span>
+                <h2>摘要：我们要造什么？</h2>
+            </div>
+            <div class="slide-split">
+                <div class="reveal">
+                    <ul class="bullet-list">
+                        <li><strong>推理基础软件</strong>：在终端提供开源模型的统一加载、执行与观测层，屏蔽 CPU/GPU/NPU 差异，沉淀内存与线程策略。</li>
+                        <li><strong>类小程序容器</strong>：第三方交付轻量包（UI + 逻辑 + manifest），通过稳定 Bridge 调用模型能力与受限系统能力，支持热更新与权限审计。</li>
+                        <li><strong>异构调度</strong>：同一设备上共存 LLM、扩散、VLM 与传统小模型，按会话、优先级与热/电量状态做队列与降级，避免「大模型一跑，全场卡顿」。</li>
+                        <li><strong>生态接口</strong>：模型以「能力」注册（schema、SLA、许可证），应用以依赖声明消费，便于评测、合规与版本兼容矩阵。</li>
+                    </ul>
+                </div>
+                <div class="reveal viz-panel viz-panel--glow" aria-hidden="true">
+                    <h3 style="margin-bottom:0.5em">价值闭环</h3>
+                    <svg viewBox="0 0 320 200" style="width:100%;max-height:min(28vh,200px)">
+                        <defs>
+                            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8 Z" fill="rgba(242,92,63,0.8)"/>
+                            </marker>
+                        </defs>
+                        <circle cx="160" cy="42" r="34" fill="rgba(242,92,63,0.15)" stroke="rgba(242,92,63,0.5)"/>
+                        <text x="160" y="48" text-anchor="middle" fill="#f2f0eb" font-size="13" font-family="Syne,sans-serif">Runtime</text>
+                        <line x1="160" y1="76" x2="160" y2="108" stroke="rgba(0,212,170,0.5)" stroke-width="2" marker-end="url(#arr)"/>
+                        <circle cx="160" cy="138" r="34" fill="rgba(0,212,170,0.12)" stroke="rgba(0,212,170,0.45)"/>
+                        <text x="160" y="144" text-anchor="middle" fill="#f2f0eb" font-size="13" font-family="Syne,sans-serif">Bridge</text>
+                        <line x1="200" y1="138" x2="248" y2="138" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                        <circle cx="278" cy="138" r="30" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)"/>
+                        <text x="278" y="134" text-anchor="middle" fill="#f2f0eb" font-size="11">Mini-App</text>
+                        <text x="278" y="150" text-anchor="middle" fill="rgba(242,240,235,0.55)" font-size="10">业务</text>
+                        <line x1="120" y1="138" x2="72" y2="138" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                        <circle cx="44" cy="138" r="30" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)"/>
+                        <text x="44" y="134" text-anchor="middle" fill="#f2f0eb" font-size="11">Models</text>
+                        <text x="44" y="150" text-anchor="middle" fill="rgba(242,240,235,0.55)" font-size="10">能力注册</text>
+                    </svg>
+                    <p class="meta" style="margin-top:0.5rem">运行时负责「算力与内存」，Bridge 负责「稳定 ABI」，小程序专注交互与编排。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3 背景与动机 -->
+    <section class="slide" aria-label="背景与动机">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Problem space</span>
+                <h2>背景与动机：为何需要这层软件？</h2>
+            </div>
+            <div class="grid-4 reveal">
+                <div class="icon-card">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="8" width="28" height="24" rx="4" fill="none" stroke="#00d4aa" stroke-width="2"/><path d="M14 16h12M14 22h8" stroke="rgba(242,240,235,0.5)" stroke-width="1.5"/></svg>
+                    <div><div class="t">端侧趋势</div><p>隐私合规、弱网离线、交互延迟敏感；开源权重与端侧引擎可用性快速提升，但<strong>工程集成高度碎片化</strong>。</p></div>
+                </div>
+                <div class="icon-card">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="14" fill="none" stroke="#f25c3f" stroke-width="2" stroke-dasharray="4 3"/></svg>
+                    <div><div class="t">开发者成本</div><p>每个 App 重复实现加载/量化路径、内存预算、前后处理与回退策略；<strong>跨模态 API 不一致</strong>导致业务代码难以复用。</p></div>
+                </div>
+                <div class="icon-card">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 28 L20 10 L32 28 Z" fill="none" stroke="#00d4aa" stroke-width="2"/><circle cx="20" cy="24" r="3" fill="#f25c3f"/></svg>
+                    <div><div class="t">生态缺口</div><p>缺少类似小程序的<strong>标准化沙箱与分发机制</strong>，模型能力难以像服务一样被第三方安全组合。</p></div>
+                </div>
+                <div class="icon-card">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M10 30 Q20 8 30 30" fill="none" stroke="#f25c3f" stroke-width="2"/><circle cx="20" cy="18" r="4" fill="#00d4aa"/></svg>
+                    <div><div class="t">研究价值</div><p>统一调度框架下可量化研究<strong>异构共存、动态路由、能耗–质量 Pareto</strong>，而非一次性 Demo。</p></div>
+                </div>
+            </div>
+            <div class="slide-split" style="margin-top:clamp(0.25rem,1vh,0.5rem)">
+                <div class="reveal viz-panel">
+                    <div style="font-size:var(--small-size);color:var(--text-muted);margin-bottom:0.35em">碎片化示意 · 多应用 × 多模型组合爆炸</div>
+                    <div class="frag-viz" aria-hidden="true">
+                        <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                        <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+                    </div>
+                    <div class="meter"><i style="width:78%"></i></div>
+                    <p class="meta" style="margin-top:0.45rem">缺少共享运行时 → 重复打包、重复优化、行为不一致。</p>
+                </div>
+                <div class="reveal">
+                    <ul class="bullet-list">
+                        <li><strong>结论</strong>：需要「操作系统式」的端侧 AI 基座：把共性沉到底层，把创新留给上层小程序。</li>
+                        <li><strong>边界</strong>：不追求单一模型 SOTA；强调<strong>可插拔、可观测、可治理</strong>与多模型协同。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4 愿景 -->
+    <section class="slide" aria-label="愿景与定位">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Positioning</span>
+                <h2>愿景与利益相关方</h2>
+                <p class="tagline">愿景：成为移动端开源智能应用的<strong style="color:var(--accent-2)">默认运行时底座</strong>——开发者主要编写业务与交互，平台处理算力、并发与合规钩子。</p>
+            </div>
+            <div class="grid-2 reveal" style="margin-top:0.25rem">
+                <div class="icon-card"><svg viewBox="0 0 40 40"><circle cx="20" cy="16" r="7" fill="none" stroke="#00d4aa" stroke-width="2"/><path d="M10 32c3-6 17-6 20 0" fill="none" stroke="rgba(242,240,235,0.4)" stroke-width="1.5"/></svg><div><div class="t">终端用户</div><p>默认本地推理与显式外传同意；可预期延迟与功耗；多应用间体验一致。</p></div></div>
+                <div class="icon-card"><svg viewBox="0 0 40 40"><rect x="8" y="10" width="24" height="20" rx="3" fill="none" stroke="#f25c3f" stroke-width="2"/></svg><div><div class="t">应用开发者</div><p>统一 Bridge 与调试探针；专注 manifest 与 UI；减少底层推理排障时间。</p></div></div>
+                <div class="icon-card"><svg viewBox="0 0 40 40"><path d="M8 28 L20 12 L32 28" fill="none" stroke="#00d4aa" stroke-width="2"/></svg><div><div class="t">模型社区</div><p>标准包与基准入口；许可证与能力元数据可读；促进复用而非 Fork 碎片化。</p></div></div>
+                <div class="icon-card"><svg viewBox="0 0 40 40"><rect x="10" y="14" width="20" height="14" fill="none" stroke="#f25c3f" stroke-width="2"/><path d="M14 22h12" stroke="rgba(242,240,235,0.4)"/></svg><div><div class="t">平台 / 系统</div><p>算力预算、热管理、权限审计与遥测（可匿名）；为 OEM 集成预留策略接口。</p></div></div>
+            </div>
+            <p class="reveal meta" style="margin-top:0.25rem"><strong style="color:var(--text-primary)">非目标</strong>：不替代完整移动 OS；初期不承诺覆盖全部芯片后端，以适配器插件演进。</p>
+        </div>
+    </section>
+
+    <!-- 5 核心概念 -->
+    <section class="slide" aria-label="核心概念">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Building blocks</span>
+                <h2>核心概念：五块拼图</h2>
+            </div>
+            <div class="grid reveal" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:0.5rem">
+                <div class="icon-card"><svg viewBox="0 0 40 40"><rect x="6" y="8" width="28" height="24" rx="3" fill="rgba(0,212,170,0.08)" stroke="#00d4aa"/></svg><div><div class="t">推理 Runtime</div><p>进程/服务内统一线程池、内存池与后端选择；暴露会话与取消语义。</p></div></div>
+                <div class="icon-card"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="none" stroke="#f25c3f" stroke-width="2"/><text x="20" y="24" text-anchor="middle" fill="#f2f0eb" font-size="10" font-family="Syne">ID</text></svg><div><div class="t">Model-as-Capability</div><p>输入输出 schema、时延档、显存档、版本与许可证绑定。</p></div></div>
+                <div class="icon-card"><svg viewBox="0 0 40 40"><rect x="10" y="12" width="20" height="16" rx="2" fill="none" stroke="#00d4aa"/><rect x="14" y="16" width="12" height="8" fill="rgba(242,92,63,0.2)"/></svg><div><div class="t">智能小程序</div><p>沙箱 UI + 脚本；manifest 声明模型依赖与权限白名单。</p></div></div>
+                <div class="icon-card"><svg viewBox="0 0 40 40"><path d="M8 30 L20 8 L32 30" fill="none" stroke="#f25c3f"/><path d="M12 24h16" stroke="#00d4aa"/></svg><div><div class="t">统一调度器</div><p>多队列、抢占、投机解码路由、热/电量感知降级。</p></div></div>
+                <div class="icon-card"><svg viewBox="0 0 40 40"><path d="M10 14 L30 14 M10 20 L26 20 M10 26 L22 26" stroke="rgba(242,240,235,0.45)" stroke-width="2"/></svg><div><div class="t">工具链</div><p>打包、签名校验、基准测试、许可证扫描与 CI 模板。</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6 架构 -->
+    <section class="slide" aria-label="系统架构">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Architecture</span>
+                <h2>逻辑分层：稳定 API，可插拔后端</h2>
+            </div>
+            <div class="slide-split slide-split--wide-left">
+                <div class="reveal stack">
+                    <div class="stack-row"><span class="stack-num">L5</span> 智能小程序 / 第三方 SDK · UI · manifest</div>
+                    <div class="stack-row" style="justify-content:center;font-size:clamp(0.55rem,0.9vw,0.7rem);opacity:0.75">Bridge API · 稳定 ABI / IDL</div>
+                    <div class="stack-row"><span class="stack-num">L4</span> 应用框架：权限 · 生命周期 · 包管理 · 沙箱</div>
+                    <div class="stack-row"><span class="stack-num">L3</span> 能力编排：多模态管线 · 会话 · 工具调用适配</div>
+                    <div class="stack-row"><span class="stack-num">L2</span> 推理调度：队列 · 优先级 · 批处理 · 降级策略</div>
+                    <div class="stack-row"><span class="stack-num">L1</span> 模型运行时：LLM · Diffusion · VLM · 传统小模型</div>
+                    <div class="stack-row"><span class="stack-num">L0</span> 硬件抽象：CPU / GPU / NPU · 内存池 · 量化编译</div>
+                </div>
+                <div class="reveal viz-panel">
+                    <h3>设计原则</h3>
+                    <ul class="bullet-list" style="margin-top:0.35rem">
+                        <li><strong>向上稳定</strong>：Bridge 长期兼容；内部实现可换。</li>
+                        <li><strong>策略可插拔</strong>：调度与降级以策略包形式下发。</li>
+                        <li><strong>观测优先</strong>：延迟/显存/功耗 trace 一等公民。</li>
+                    </ul>
+                    <svg viewBox="0 0 280 120" style="width:100%;margin-top:0.5rem;max-height:min(22vh,140px)" aria-hidden="true">
+                        <rect x="20" y="10" width="240" height="22" rx="6" fill="rgba(242,92,63,0.12)" stroke="rgba(242,92,63,0.35)"/>
+                        <rect x="20" y="38" width="240" height="22" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)"/>
+                        <rect x="20" y="66" width="240" height="22" rx="6" fill="rgba(0,212,170,0.1)" stroke="rgba(0,212,170,0.3)"/>
+                        <text x="140" y="26" text-anchor="middle" fill="rgba(242,240,235,0.75)" font-size="10">策略与编排（可变）</text>
+                        <text x="140" y="54" text-anchor="middle" fill="rgba(242,240,235,0.75)" font-size="10">调度与资源（中等变更）</text>
+                        <text x="140" y="82" text-anchor="middle" fill="rgba(242,240,235,0.75)" font-size="10">HAL / 后端插件（迭代频繁）</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7 LLM + Diffusion -->
+    <section class="slide" aria-label="LLM与扩散">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Model families</span>
+                <h2>LLM 与扩散：两类「重任务」如何共处？</h2>
+            </div>
+            <div class="slide-split">
+                <div class="reveal viz-panel">
+                    <h3>大语言模型</h3>
+                    <ul class="bullet-list">
+                        <li>自回归解码对显存与带宽敏感；利用<strong>前缀 KV 复用</strong>与会话级公平。</li>
+                        <li>交互式请求可打断后台摘要；支持投机解码若后端允许。</li>
+                        <li>端侧以中小参数 + 强量化为主；超大模型走<strong>可配置云端回退</strong>与隐私脱敏。</li>
+                    </ul>
+                    <div class="meter"><i style="width:62%"></i></div>
+                    <p class="meta" style="margin-top:0.35rem">图示：交互式负载占比（示例）</p>
+                </div>
+                <div class="reveal viz-panel">
+                    <h3>扩散模型</h3>
+                    <ul class="bullet-list">
+                        <li>多步迭代：暴露<strong>步数自适应</strong>与提前终止，映射质量–时间曲线。</li>
+                        <li>与 LLM <strong>错峰调度</strong>，避免与 VLM 同事抢占显存峰值。</li>
+                        <li>产品层：进度、取消、缩略预览，保证可感知响应。</li>
+                    </ul>
+                    <svg viewBox="0 0 260 90" style="width:100%;max-height:min(18vh,100px);margin-top:0.35rem" aria-hidden="true">
+                        <polyline fill="none" stroke="#f25c3f" stroke-width="2" points="10,70 50,55 90,40 130,35 170,25 210,18 250,12"/>
+                        <text x="130" y="85" text-anchor="middle" fill="rgba(242,240,235,0.45)" font-size="9">步数 → 质量收益递减：调度器可在此切分</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8 VLM + 小模型 -->
+    <section class="slide" aria-label="VLM与小模型">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Multimodal & tiny ML</span>
+                <h2>VLM 与传统小模型：感知与门控</h2>
+            </div>
+            <div class="slide-split">
+                <div class="reveal">
+                    <h3>视觉-语言模型</h3>
+                    <ul class="bullet-list">
+                        <li>视觉编码器往往决定首包延迟：提供<strong>分辨率档位</strong>与「先小图后大图」策略。</li>
+                        <li>与相机/相册 IO 并行：预读、降采样与缓存帧。</li>
+                        <li>隐私：本地默认；上传需显式声明与最小必要原则。</li>
+                    </ul>
+                    <div class="mini-flow" style="margin-top:0.45rem">
+                        <span>相机帧</span><i>→</i><span>降采样</span><i>→</i><span>VLM</span><i>→</i><span>结构化输出</span>
+                    </div>
+                </div>
+                <div class="reveal viz-panel">
+                    <h3>专用小模型</h3>
+                    <ul class="bullet-list">
+                        <li>低延迟判别：检测、关键词、唤醒、轻量 ASR 等。</li>
+                        <li>作为<strong>路由门控</strong>：先判场景/意图，再决定是否唤醒大模型。</li>
+                        <li>调度上通常标记为<strong>高优先级短任务</strong>，避免被生成式任务饿死。</li>
+                    </ul>
+                    <svg viewBox="0 0 280 70" style="width:100%;max-height:min(14vh,80px);margin-top:0.35rem" aria-hidden="true">
+                        <rect x="10" y="20" width="70" height="30" rx="6" fill="rgba(0,212,170,0.15)" stroke="#00d4aa"/>
+                        <text x="45" y="40" text-anchor="middle" fill="#f2f0eb" font-size="10">小模型</text>
+                        <text x="130" y="40" text-anchor="middle" fill="#f25c3f" font-size="14">⇢</text>
+                        <rect x="170" y="15" width="100" height="40" rx="8" fill="rgba(242,92,63,0.12)" stroke="#f25c3f"/>
+                        <text x="220" y="40" text-anchor="middle" fill="#f2f0eb" font-size="10">大模型（按需）</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9 调度 -->
+    <section class="slide" aria-label="统一调度">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Scheduler</span>
+                <h2>统一调度：把「并发」变成可策略化的问题</h2>
+            </div>
+            <div class="slide-split">
+                <div class="reveal">
+                    <ul class="bullet-list">
+                        <li><strong>全局预算</strong>：随温度、电量与插电状态收紧并发与 batch。</li>
+                        <li><strong>任务分类</strong>：交互式 / 后台 / 生成式（可取消）——不同 SLA。</li>
+                        <li><strong>跨模型 DAG</strong>：检测 → 裁剪 → VLM → LLM 总结；节点级超时与替代路径。</li>
+                        <li><strong>降级路径</strong>：备用小模型、降分辨率/步数/上下文；可解释地反馈给 UI。</li>
+                    </ul>
+                </div>
+                <div class="reveal viz-panel">
+                    <h3>示例流水线</h3>
+                    <svg viewBox="0 0 300 200" style="width:100%;max-height:min(32vh,220px)" aria-hidden="true">
+                        <rect x="20" y="30" width="56" height="28" rx="6" fill="rgba(0,212,170,0.15)" stroke="#00d4aa"/>
+                        <text x="48" y="48" text-anchor="middle" fill="#f2f0eb" font-size="10">检测</text>
+                        <line x1="76" y1="44" x2="108" y2="44" stroke="rgba(255,255,255,0.25)"/>
+                        <polygon points="108,44 118,39 118,49" fill="#f25c3f"/>
+                        <rect x="120" y="30" width="56" height="28" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)"/>
+                        <text x="148" y="48" text-anchor="middle" fill="#f2f0eb" font-size="10">裁剪</text>
+                        <line x1="176" y1="44" x2="208" y2="44" stroke="rgba(255,255,255,0.25)"/>
+                        <polygon points="208,44 218,39 218,49" fill="#f25c3f"/>
+                        <rect x="220" y="30" width="56" height="28" rx="6" fill="rgba(242,92,63,0.12)" stroke="#f25c3f"/>
+                        <text x="248" y="48" text-anchor="middle" fill="#f2f0eb" font-size="10">VLM</text>
+                        <line x1="248" y1="58" x2="248" y2="92" stroke="rgba(255,255,255,0.2)"/>
+                        <polygon points="248,92 243,82 253,82" fill="#00d4aa"/>
+                        <rect x="200" y="100" width="96" height="36" rx="8" fill="rgba(0,212,170,0.1)" stroke="#00d4aa"/>
+                        <text x="248" y="122" text-anchor="middle" fill="#f2f0eb" font-size="11">LLM 总结</text>
+                    </svg>
+                    <p class="meta">调度器在 DAG 边上加超时、重试与替代算子，避免单点拖垮整条链路。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10 小程序开发者 -->
+    <section class="slide" aria-label="开发者模型">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Developer experience</span>
+                <h2>「类小程序」开发者模型</h2>
+            </div>
+            <div class="slide-split">
+                <div class="reveal">
+                    <ul class="bullet-list">
+                        <li><strong>交付物</strong>：manifest（模型依赖、最低算力档、权限声明）+ 前端资源 + 业务脚本。</li>
+                        <li><strong>推理 API</strong>：以能力 ID 调用，输入输出符合注册 schema；支持流式与取消令牌。</li>
+                        <li><strong>系统 API</strong>：存储、受控网络、相机等——默认最小授权，宿主可策略收紧。</li>
+                        <li><strong>嵌入形态</strong>：宿主 App 集成 SDK；后期可选独立启动器聚合多小程序。</li>
+                    </ul>
+                </div>
+                <div class="reveal viz-panel">
+                    <div class="code-block">
+                        <span class="k">{</span><br/>
+                        &nbsp;&nbsp;<span class="s">"appId"</span>: <span class="k">"demo.smartcards"</span>,<br/>
+                        &nbsp;&nbsp;<span class="s">"models"</span>: [<span class="k">"llm.q4_7b"</span>, <span class="k">"vlm.s"</span>],<br/>
+                        &nbsp;&nbsp;<span class="s">"minTier"</span>: <span class="k">"8GB"</span>,<br/>
+                        &nbsp;&nbsp;<span class="s">"permissions"</span>: [<span class="k">"camera"</span>, <span class="k">"storage.app"</span>]<br/>
+                        <span class="k">}</span>
+                    </div>
+                    <p class="meta" style="margin-top:0.45rem">manifest 驱动测试与兼容矩阵生成（设备 × 后端 × 版本）。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11 安全 -->
+    <section class="slide" aria-label="安全隐私">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Trust</span>
+                <h2>安全、隐私与供应链</h2>
+            </div>
+            <div class="slide-split">
+                <div class="reveal">
+                    <ul class="bullet-list">
+                        <li><strong>沙箱</strong>：文件/网络/敏感 API 默认关闭；宿主策略可统一审计。</li>
+                        <li><strong>数据驻留</strong>：默认本地推理；任何上传需二次确认与用途说明。</li>
+                        <li><strong>模型供应链</strong>：签名、哈希、SBOM；构建可重现与漏洞响应流程。</li>
+                        <li><strong>内容安全</strong>：生成式输出策略（年龄模式、企业关键词）由宿主配置。</li>
+                    </ul>
+                </div>
+                <div class="reveal viz-panel" aria-hidden="true">
+                    <h3>分层防护示意</h3>
+                    <div class="layer-viz">
+                        <div class="layer">策略与合规钩子（宿主 / 企业 MDM）</div>
+                        <div class="layer">沙箱与权限中介（Bridge）</div>
+                        <div class="layer">模型完整性与许可证校验（运行时）</div>
+                    </div>
+                    <p class="meta" style="margin-top:0.5rem">把「能跑」升级为「可证明地安全默认」。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12 对比 -->
+    <section class="slide" aria-label="差异对比">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Landscape</span>
+                <h2>与常见形态的差异</h2>
+            </div>
+            <div class="reveal">
+                <table class="compare">
+                    <thead><tr><th class="ico"></th><th>形态</th><th>与本方案关系</th></tr></thead>
+                    <tbody>
+                        <tr><td class="ico">📱</td><td>单 App 内嵌模型</td><td>强调单团队交付；我们强调<strong>平台化 + 第三方小程序</strong>与统一观测。</td></tr>
+                        <tr><td class="ico">⚙️</td><td>MLC / llama.cpp 等引擎</td><td>优秀的推理后端；可作为 <strong>HAL 插件</strong>，而非完整生态层。</td></tr>
+                        <tr><td class="ico">☁️</td><td>云函数 + 小程序</td><td>算力在云端；我们聚焦<strong>端侧调度、隐私与弱网</strong>，云为可选回退。</td></tr>
+                        <tr><td class="ico">🤖</td><td>系统级助手</td><td>深度 OS 集成；我们可先 <strong>App 级落地</strong>，验证后再谈系统扩展。</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 13 路线 -->
+    <section class="slide" aria-label="技术路线">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Roadmap</span>
+                <h2>技术路线：验证 → 平台 → 生态</h2>
+            </div>
+            <div class="reveal timeline">
+                <div class="timeline-phase" data-label="A 验证期（3–6 月）">
+                    <p>单平台（建议 Android）；接入 LLM + 小模型；打通 Bridge 与示例小程序；发布模型包格式 v0.1 与基线评测。</p>
+                </div>
+                <div class="timeline-phase" data-label="B 平台期">
+                    <p>Diffusion / VLM 适配器；多队列抢占与更细粒度遥测；开发者工具链（模拟器、剖析、合规扫描）与 RFC 流程。</p>
+                </div>
+                <div class="timeline-phase" data-label="C 生态期">
+                    <p>模型注册表与可选应用分发形态；跨 App 互操作规范；iOS / 策略限制单独评估。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 14 风险 -->
+    <section class="slide" aria-label="风险">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Risks</span>
+                <h2>风险与应对（简表）</h2>
+            </div>
+            <div class="reveal">
+                <div class="risk-pair"><span class="tag">算力/内存瓶颈</span><em>→</em><span class="ok">分级模型 · 动态降级 · 云回退</span></div>
+                <div class="risk-pair"><span class="tag">多后端维护</span><em>→</em><span class="ok">适配器接口稳定 · 优先复用社区引擎</span></div>
+                <div class="risk-pair"><span class="tag">生态冷启动</span><em>→</em><span class="ok">官方示例 · 种子模型 · 学术合作</span></div>
+                <div class="risk-pair"><span class="tag">合规与许可证</span><em>→</em><span class="ok">自动化扫描 · 运行时提示与阻断策略</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 15 开源与 KPI -->
+    <section class="slide" aria-label="开源与成功标准">
+        <div class="slide-content slide-content--dense">
+            <div class="slide-head reveal">
+                <span class="eyebrow">Open &amp; metrics</span>
+                <h2>开源治理与可量化成功标准</h2>
+            </div>
+            <div class="slide-split">
+                <div class="reveal">
+                    <ul class="bullet-list">
+                        <li><strong>许可证</strong>：Runtime 采用 Apache-2.0/MIT 等宽松协议；模型权重遵循上游。</li>
+                        <li><strong>治理</strong>：RFC 重大变更；SemVer；安全公告渠道。</li>
+                        <li><strong>学术产出</strong>：调度策略、异构共存、端侧 QoS、能耗–质量权衡等可发表系统性结果。</li>
+                    </ul>
+                </div>
+                <div class="reveal viz-panel">
+                    <h3>KPI 示例</h3>
+                    <div class="hero-grid" style="grid-template-columns:1fr;gap:0.4rem">
+                        <div class="stat-card" style="text-align:left"><b>≤ N 人日</b><span>第三方完成首个演示小程序（含调试）</span></div>
+                        <div class="stat-card" style="text-align:left"><b>P95 ↓ X%</b><span>混合负载下相对「无调度」基线</span></div>
+                        <div class="stat-card" style="text-align:left"><b>崩溃率 / 峰值内存</b><span>低于阈值；关键路径全链路 tracing</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 16 结语 -->
+    <section class="slide title-slide" aria-label="结语">
+        <div class="slide-content">
+            <div class="reveal accent-bar"></div>
+            <h2 class="reveal" style="font-size:var(--title-size);line-height:1.1">结语</h2>
+            <p class="reveal tagline" style="max-width:min(42em,92vw);margin-top:clamp(0.5rem,2vh,1rem)">
+                把开源模型从「每个 App 各自集成」推进为<strong style="color:var(--text-primary)">可运营的平台层</strong>：统一调度、统一观测、统一生态接口。
+                智能小程序承载业务创新，运行时承载算力与信任。
+            </p>
+            <div class="reveal mini-flow" style="margin-top:clamp(0.75rem,2.5vh,1.25rem);justify-content:flex-start">
+                <span>Runtime</span><i>+</i><span>Bridge</span><i>+</i><span>Mini-App</span><i>→</i><span>可持续生态</span>
+            </div>
+            <p class="reveal meta" style="margin-top:clamp(0.5rem,2vh,1rem)">完整论述见 docs/mobile-ai-runtime-whitepaper.md</p>
+        </div>
+    </section>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll(".slide"));
+                this.currentSlide = 0;
+                this.progressBar = document.getElementById("progressBar");
+                this.navContainer = document.getElementById("navDots");
+                this.wheelAccum = 0;
+                this.wheelTimeout = null;
+                this.initNavDots();
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupWheelNav();
+                this.setupTouchNav();
+                this.updateProgress();
+            }
+            initNavDots() {
+                this.slides.forEach((_, i) => {
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.setAttribute("aria-label", "第 " + (i + 1) + " 张");
+                    b.addEventListener("click", () => this.goToSlide(i));
+                    this.navContainer.appendChild(b);
+                });
+                this.navButtons = Array.from(this.navContainer.querySelectorAll("button"));
+            }
+            goToSlide(index) {
+                const i = Math.max(0, Math.min(index, this.slides.length - 1));
+                this.slides[i].scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+            next() { this.goToSlide(this.currentSlide + 1); }
+            prev() { this.goToSlide(this.currentSlide - 1); }
+            setupIntersectionObserver() {
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach((en) => {
+                        const slide = en.target;
+                        if (en.isIntersecting) {
+                            slide.classList.add("visible");
+                            this.currentSlide = this.slides.indexOf(slide);
+                            this.updateProgress();
+                            this.updateNavDots();
+                        } else {
+                            slide.classList.remove("visible");
+                        }
+                    });
+                }, { root: null, rootMargin: "0px", threshold: 0.52 });
+                this.slides.forEach((s) => io.observe(s));
+                if (this.slides[0]) this.slides[0].classList.add("visible");
+            }
+            updateProgress() {
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + "%";
+                this.progressBar.setAttribute("aria-valuenow", String(Math.round(pct)));
+            }
+            updateNavDots() {
+                this.navButtons.forEach((btn, i) => btn.classList.toggle("active", i === this.currentSlide));
+            }
+            setupKeyboardNav() {
+                document.addEventListener("keydown", (e) => {
+                    if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+                        e.preventDefault();
+                        this.next();
+                    } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+                        e.preventDefault();
+                        this.prev();
+                    } else if (e.key === "Home") {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === "End") {
+                        e.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+            }
+            setupWheelNav() {
+                document.addEventListener("wheel", (e) => {
+                    if (Math.abs(e.deltaY) < 2) return;
+                    e.preventDefault();
+                    this.wheelAccum += e.deltaY;
+                    clearTimeout(this.wheelTimeout);
+                    this.wheelTimeout = setTimeout(() => {
+                        if (this.wheelAccum > 40) this.next();
+                        else if (this.wheelAccum < -40) this.prev();
+                        this.wheelAccum = 0;
+                    }, 80);
+                }, { passive: false });
+            }
+            setupTouchNav() {
+                let startY = null;
+                document.addEventListener("touchstart", (e) => {
+                    if (e.changedTouches.length) startY = e.changedTouches[0].clientY;
+                }, { passive: true });
+                document.addEventListener("touchend", (e) => {
+                    if (startY == null || !e.changedTouches.length) return;
+                    const endY = e.changedTouches[0].clientY;
+                    const dy = startY - endY;
+                    if (dy > 50) this.next();
+                    else if (dy < -50) this.prev();
+                    startY = null;
+                }, { passive: true });
+            }
+        }
+        new SlidePresentation();
+    </script>
+</body>
+</html>
