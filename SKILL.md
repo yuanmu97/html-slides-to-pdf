@@ -45,15 +45,16 @@ Rendering details (screen media, `vh` pinning, flex-safe slide toggling) are in 
 
 ## Behavior summary
 
-- One merged PDF page per `.slide` element.
-- **Screen** media; pins document/slide size to `--width`×`--height` px; clears inline `display` on the active slide so stylesheet **`display: flex`** (and similar) is preserved.
-- Hides `.nav-dots`, `.progress-bar`, `.keyboard-hint`, `.edit-hotzone`, `.edit-toggle` (and similar) during capture.
-- Adds `.visible` on the active slide and on `.reveal` descendants for animated content.
+- **Slide detection:** If `.reveal .slides` exists, uses **reveal.js** `Reveal.getSlides()` when loaded, otherwise top-level `section` children (static export). Otherwise uses `.slide` elements, **excluding** the reveal root (`div.reveal` that contains `.slides`) so reveal’s `slide` class does not collapse the deck to one page.
+- **Dot-slide decks:** Toggles `.active` on the current panel so patterns like `.slide { display:none }` + `.slide.active { display:flex }` (JS-driven decks) export every page.
+- **Screen** media; pins document/slide size to `--width`×`--height` px; reveal layouts get transform reset so slides fill the viewport.
+- **`print-color-adjust: exact`** and copying computed **background** onto `html`/`body` helps **dark themes** and gradients appear in PDF.
+- Hides `.nav-dots`, `.progress-bar`, `.keyboard-hint`, reveal controls/progress, `body > .controls` / `body > .page-indicator`, `.export-btn`, etc.
 
 ## If something goes wrong
 
 1. **`No module named 'playwright'`** — Same `python` for `pip install` and `html_to_pdf.py`.
-2. **No slides** — Need elements matching `.slide`.
+2. **No slides** — Need reveal `.slides > section`, or `.slide` panels (not only the reveal wrapper).
 3. **Clipped / fonts / timing** — Adjust `--width`, `--height`, `--delay-ms`.
 4. **Layout vs browser** — Match `--width` / `--height` to the viewport you design in (default 1920×1080).
 
